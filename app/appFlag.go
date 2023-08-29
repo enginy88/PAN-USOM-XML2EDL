@@ -42,7 +42,7 @@ func changeWorkingDir() {
 
 	origDir, err := os.Getwd()
 	if err != nil {
-		LogErr.Fatalln("Cannot get working directory! (" + err.Error() + ")")
+		LogErr.Fatalln("FATAL ERROR: Cannot get working directory! (" + err.Error() + ")")
 	}
 
 	workingDir := origDir
@@ -52,12 +52,12 @@ func changeWorkingDir() {
 
 		err := os.Chdir(appFlag.workingDirRaw)
 		if err != nil {
-			LogErr.Fatalln("Cannot change working directory! (" + err.Error() + ")")
+			LogErr.Fatalln("FATAL ERROR: Cannot change working directory! (" + err.Error() + ")")
 		}
 
 		newDir, err := os.Getwd()
 		if err != nil {
-			LogErr.Fatalln("Cannot get working directory! (" + err.Error() + ")")
+			LogErr.Fatalln("FATAL ERROR: Cannot get working directory! (" + err.Error() + ")")
 		}
 
 		workingDir = newDir

@@ -4,7 +4,6 @@ import (
 	"PAN-USOM-XML2EDL/app"
 
 	"encoding/json"
-	"os"
 	"sort"
 	"strconv"
 	"time"
@@ -33,15 +32,15 @@ func RunAllJobs(appFlagParam app.AppFlagStruct, appSettParam app.AppSettStruct) 
 
 	appSettJSON, err := json.Marshal(appSett)
 	if err != nil {
-		app.LogErr.Fatalln(err)
+		app.LogErr.Fatalln("FATAL ERROR: Cannot marshal JSON data! (" + err.Error() + ")")
 	}
-	app.LogInfo.Println("RUNNING CONFIG: " + string(appSettJSON))
+	app.LogInfo.Println("RUNNING CONFIG: '" + string(appSettJSON) + "'")
 
 	iocRecords := getIocRecords()
 
-	app.LogInfo.Println("GET RECORDS: " + strconv.Itoa(len(iocRecords)) + " record(s) fetched.")
+	app.LogInfo.Println("FETCHED RECORDS: " + strconv.Itoa(len(iocRecords)) + " record(s) fetched.")
 
-	if appSett.NoSort == false {
+	if !appSett.NoSort {
 
 		iocRecords.sortByTime()
 
@@ -49,13 +48,23 @@ func RunAllJobs(appFlagParam app.AppFlagStruct, appSettParam app.AppSettStruct) 
 
 	filteredIocRecords := iocRecords.filterByDate(appSett.DaysOld)
 
-	app.LogInfo.Println("FILTER RECORDS: " + strconv.Itoa(len(filteredIocRecords)) + " record(s) filtered by date.")
+	if appSett.DaysOld > 0 {
+		app.LogInfo.Println("FILTERED RECORDS: " + strconv.Itoa(len(filteredIocRecords)) + " record(s) filtered by date.")
+	}
 
-	filteredIocRecords.generateEDL(appSett.LimitCount)
+	if appSett.SingleOutput {
+		filteredIocRecords.generateSingleFileEDL(appSett.LimitCount)
+	} else {
+		filteredIocRecords.generateMultiFileEDL(appSett.LimitCount)
+	}
 
 }
 
 func (iocRecords iocRecordSlice) filterByDate(days int) (filteredIocRecords iocRecordSlice) {
+
+	if days < 1 {
+		return iocRecords
+	}
 
 	lastUpdated := iocRecords[0].Date
 	comperableDate := lastUpdated.AddDate(0, 0, 0-days)
@@ -70,26 +79,5 @@ func (iocRecords iocRecordSlice) filterByDate(days int) (filteredIocRecords iocR
 	}
 
 	return filteredIocRecords
-
-}
-
-func (iocRecords iocRecordSlice) generateEDL(limit int) {
-
-	file, err := os.Create(appFlag.OutputDir + "/edl.txt")
-	if err != nil {
-		app.LogErr.Fatalln(err)
-	}
-	defer file.Close()
-
-	for i, iocRecord := range iocRecords {
-		if limit > 0 && i >= limit {
-			app.LogInfo.Println("LIMIT RECORDS: " + strconv.Itoa(limit) + " record(s) limited by count.")
-			break
-		}
-		_, err := file.WriteString(iocRecord.URL + "\n")
-		if err != nil {
-			app.LogErr.Fatalln(err)
-		}
-	}
 
 }

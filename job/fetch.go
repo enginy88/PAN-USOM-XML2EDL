@@ -17,10 +17,10 @@ func getIocRecords() (iocRecords iocRecordSlice) {
 
 	var input io.Reader
 
-	if appSett.FileTest == true {
+	if appSett.FileTest {
 		file, err := os.Open("./url-list.xml")
 		if err != nil {
-			app.LogErr.Fatalln(err)
+			app.LogErr.Fatalln("FATAL ERROR: Cannot find/open 'url-list.xml' file! (" + err.Error() + ")")
 		}
 		defer file.Close()
 		input = file
@@ -33,13 +33,13 @@ func getIocRecords() (iocRecords iocRecordSlice) {
 
 	xml, err := xmlquery.Parse(input)
 	if err != nil {
-		app.LogErr.Fatalln(err)
+		app.LogErr.Fatalln("FATAL ERROR: Cannot parse XML format! (" + err.Error() + ")")
 	}
 
 	result := xmlquery.FindOne(xml, "/usom-data/url-list[url-info/url]")
 
 	if result == nil {
-		app.LogErr.Fatalln("Not an expected XML Data!")
+		app.LogErr.Fatalln("FATAL ERROR: Not an expected XML Data!")
 	}
 
 	for _, iter := range xmlquery.Find(result, "/url-info[url][date]") {
@@ -48,7 +48,7 @@ func getIocRecords() (iocRecords iocRecordSlice) {
 		dateString := iter.SelectElement("date").InnerText()
 		date, err := time.Parse(time.DateTime, dateString)
 		if err != nil {
-			app.LogErr.Fatalln(err)
+			app.LogErr.Fatalln("FATAL ERROR: Cannot parse DateTime format! (" + err.Error() + ")")
 		}
 
 		iocRecords = append(iocRecords, iocRecord{URL: url, Date: date})
@@ -66,21 +66,21 @@ func fetchXMLFeed() (xml []byte) {
 		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
-	timeout := time.Duration(30 * time.Second)
+	timeout := time.Duration(60 * time.Second)
 	client := &http.Client{Transport: transport, Timeout: timeout}
 
 	url := appSett.FeedURL
 
 	response, err := client.Get(url)
 	if err != nil {
-		app.LogErr.Fatalln(err)
+		app.LogErr.Fatalln("FATAL ERROR: Cannot download requested data! (" + err.Error() + ")")
 	}
 
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		app.LogErr.Fatalln(err)
+		app.LogErr.Fatalln("FATAL ERROR: Cannot read downloaded data! (" + err.Error() + ")")
 	}
 
 	return body
