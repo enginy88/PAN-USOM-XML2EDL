@@ -15,6 +15,11 @@ build:
 	GOOS=windows GOARCH=amd64 $(CC) -ldflags $(LDFLAGS) -o bin/$(NAME)_win-amd64.exe
 	GOOS=windows GOARCH=arm64 $(CC) -ldflags $(LDFLAGS) -o bin/$(NAME)_win-arm64.exe
 
+.PHONY: local
+local:
+	mkdir -p ./bin
+	$(CC) -ldflags $(LDFLAGS) -o bin/$(NAME)
+
 .PHONY: clean
 clean:
 	rm -rf ./bin

@@ -31,7 +31,7 @@ func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
 	var domainSlice []string
 	var urlSlice []string
 
-	regexPattern := `^([^\S\r\n]*)?(http[s]?:\/\/)?(?P<ip>(?:[0-9]{1,3}\.){3}[0-9]{1,3})?(?P<domain>[^\s/]+\.[^0-9\s\./]+[^\s\./]*)?(:[0-9]{1,5})?(/+)?(?P<path>[^\s]*)?([^\S\r\n]*)?$`
+	regexPattern := `^(?P<leading-whitespace>[^\S\r\n]*)?(?P<scheme>http[s]?:\/\/)?(?P<ip>(?:[0-9]{1,3}\.){3}[0-9]{1,3})?(?P<domain>[^\s/]+\.[^0-9\s\./]+[^\s\./]*)?(?P<port>:[0-9]{1,5})?(?P<root>/+)?(?P<path>[^\s]*)?(?P<trailing-whitespace>[^\S\r\n]*)?$`
 
 	re, err := regexp.Compile(regexPattern)
 	if err != nil {
@@ -86,8 +86,8 @@ func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
 		app.LogWarn.Println("SKIPPED RECORDS: " + strconv.Itoa(noMatchCount) + " record(s) cannot be parsed and skipped.")
 	}
 
-	writeToFile("edl-domain.txt", compact(domainSlice))
 	writeToFile("edl-ip.txt", compact(ipSlice))
+	writeToFile("edl-domain.txt", compact(domainSlice))
 	writeToFile("edl-url.txt", compact(urlSlice))
 
 }

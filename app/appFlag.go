@@ -29,8 +29,8 @@ func GetAppFlag() *AppFlagStruct {
 
 func parseAppFlag() {
 
-	workingDir := flag.String("dir", "", "Path of directory which contains 'appsett.env' file and also EDL file(s) are created.")
-	outputgDir := flag.String("out", "", "Path of directory which EDL file(s) are created. (Overrides '-dir' option.)")
+	workingDir := flag.String("dir", "", "Path of directory which contains 'appsett.env' file and also EDL file(s) will be created.")
+	outputgDir := flag.String("out", "", "Path of directory which EDL file(s) will be created. (Overrides '-dir' option.)")
 	flag.Parse()
 
 	appFlag.workingDirRaw = *workingDir

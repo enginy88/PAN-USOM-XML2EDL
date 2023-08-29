@@ -83,7 +83,7 @@ func checkAppSett() {
 	}
 
 	if appSett.SingleOutput {
-		LogWarn.Println("CONFIG MSG: SingleOutput object value set to ('" + strconv.FormatBool(appSett.SingleOutput) + "'), records will not be parsed and be written into a single file.")
+		LogWarn.Println("CONFIG MSG: SingleOutput object value set to ('" + strconv.FormatBool(appSett.SingleOutput) + "'), records will be written into a single file without being parsed or processed.")
 	}
 
 	if appSett.NoSort {
