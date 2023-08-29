@@ -1,0 +1,9 @@
+.DS_Store
+bin/
+edl-domain.txt
+edl-ip.txt
+edl-url.txt
+edl.txt
+go.mod
+go.sum
+url-list.xml
