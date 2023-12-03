@@ -31,7 +31,7 @@ func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
 	var domainSlice []string
 	var urlSlice []string
 
-	regexPattern := `^(?P<leading_whitespace>[^\S\r\n]*)?(?P<scheme>http[s]?:\/\/)?(?P<ip>(?:[0-9]{1,3}\.){3}[0-9]{1,3})?(?P<domain>[^\s/]+\.[^0-9\s\./]+[^\s\./]*)?(?P<port>:[0-9]{1,5})?(?P<root>/+)?(?P<path>[^\s]*)?(?P<trailing_whitespace>[^\S\r\n]*)?$`
+	regexPattern := `^(?P<leading_whitespace>[^\S\r\n]*)?(?P<scheme>http[s]?://)?(?:(?P<domain>[^\s/?#]+\.[^0-9\s\./?#:]+[^\s\./?#:]*)|(?P<ip>(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?P<port>:[0-9]{1,5})?(?:(?P<root>/+)(?P<path>[^\s?#]*))?(?:(?P<query>\?[^\s#]*)?(?P<fragment>#.*)?)?(?P<trailing_whitespace>[^\S\r\n]*)?$`
 
 	re, err := regexp.Compile(regexPattern)
 	if err != nil {
@@ -59,14 +59,14 @@ func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
 		if matches != nil && (matches[ipIndex] != "" || matches[domainIndex] != "") {
 
 			if matches[domainIndex] != "" {
-				domainSlice = append(domainSlice, matches[ipIndex]+matches[domainIndex])
+				domainSlice = append(domainSlice, matches[domainIndex])
 			}
 
-			if matches[ipIndex] != "" && matches[domainIndex] == "" {
+			if matches[ipIndex] != "" {
 				ipSlice = append(ipSlice, matches[ipIndex])
 			}
 
-			urlSlice = append(urlSlice, matches[ipIndex]+matches[domainIndex]+"/"+matches[pathIndex])
+			urlSlice = append(urlSlice, matches[domainIndex]+matches[ipIndex]+"/"+matches[pathIndex])
 
 			matchCount++
 
