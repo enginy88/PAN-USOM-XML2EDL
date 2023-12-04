@@ -1,10 +1,10 @@
 module PAN-USOM-XML2EDL
 
-go 1.21.0
+go 1.21.4
 
 require (
 	github.com/JeremyLoy/config v1.5.0
-	github.com/antchfx/xmlquery v1.3.17
+	github.com/antchfx/xmlquery v1.3.18
 )
 
 require (
