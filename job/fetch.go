@@ -2,10 +2,10 @@ package job
 
 import (
 	"PAN-USOM-XML2EDL/app"
-	"crypto/tls"
-	"net/http"
 
+	"crypto/tls"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
