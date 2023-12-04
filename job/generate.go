@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 )
 
 func (iocRecords iocRecordSlice) generateSingleFileEDL(limit int) {
@@ -21,8 +22,12 @@ func (iocRecords iocRecordSlice) generateSingleFileEDL(limit int) {
 		edlSlice = append(edlSlice, iocRecord.URL)
 	}
 
-	writeToFile("edl.txt", edlSlice)
+	var wg sync.WaitGroup
+	wg.Add(1)
 
+	writeToFile(&wg, "edl.txt", edlSlice)
+
+	wg.Wait()
 }
 
 func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
@@ -86,9 +91,14 @@ func (iocRecords iocRecordSlice) generateMultiFileEDL(limit int) {
 		app.LogWarn.Println("SKIPPED RECORDS: " + strconv.Itoa(noMatchCount) + " record(s) cannot be parsed and skipped.")
 	}
 
-	writeToFile("edl-ip.txt", compact(ipSlice))
-	writeToFile("edl-domain.txt", compact(domainSlice))
-	writeToFile("edl-url.txt", compact(urlSlice))
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go writeToFile(&wg, "edl-ip.txt", compact(ipSlice))
+	go writeToFile(&wg, "edl-domain.txt", compact(domainSlice))
+	go writeToFile(&wg, "edl-url.txt", compact(urlSlice))
+
+	wg.Wait()
 
 }
 
@@ -106,7 +116,9 @@ func compact[T comparable](slice []T) []T {
 	return list
 }
 
-func writeToFile(filename string, linesSlice []string) {
+func writeToFile(wg *sync.WaitGroup, filename string, linesSlice []string) {
+
+	defer wg.Done()
 
 	filePath := appFlag.OutputDir + "/" + filename
 	file, err := os.Create(filePath)
