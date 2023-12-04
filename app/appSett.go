@@ -8,27 +8,29 @@ import (
 )
 
 const (
-	defaultFeedURL       = "https://www.usom.gov.tr/url-list.xml"
-	defaultDaysOld       = 0
-	defaultLimitCount    = 0
-	defaultSingleOutput  = false
-	defaultNoSort        = false
-	defaultLogSilence    = false
-	defaultLogUnparsable = false
-	defaultSkipVerify    = false
-	defaultFileTest      = false
+	defaultFeedURL         = "https://www.usom.gov.tr/url-list.xml"
+	defaultDaysOld         = 0
+	defaultLimitCount      = 0
+	defaultSingleOutput    = false
+	defaultNoSort          = false
+	defaultLogSilence      = false
+	defaultLogUnparsable   = false
+	defaultSkipVerify      = false
+	defaultFileTest        = false
+	defaultTimeoutDuration = 60
 )
 
 type AppSettStruct struct {
-	FeedURL       string `config:"PANUSOMXML2EDL_FEED_URL"`
-	DaysOld       int    `config:"PANUSOMXML2EDL_DAYS_OLD"`
-	LimitCount    int    `config:"PANUSOMXML2EDL_LIMIT_COUNT"`
-	SingleOutput  bool   `config:"PANUSOMXML2EDL_SINGLE_OUTPUT"`
-	NoSort        bool   `config:"PANUSOMXML2EDL_NO_SORT"`
-	LogSilence    bool   `config:"PANUSOMXML2EDL_LOG_SILENCE"`
-	LogUnparsable bool   `config:"PANUSOMXML2EDL_LOG_UNPARSABLE"`
-	SkipVerify    bool   `config:"PANUSOMXML2EDL_SKIP_VERIFY"`
-	FileTest      bool   `config:"PANUSOMXML2EDL_FILE_TEST"`
+	FeedURL         string `config:"PANUSOMXML2EDL_FEED_URL"`
+	DaysOld         int    `config:"PANUSOMXML2EDL_DAYS_OLD"`
+	LimitCount      int    `config:"PANUSOMXML2EDL_LIMIT_COUNT"`
+	SingleOutput    bool   `config:"PANUSOMXML2EDL_SINGLE_OUTPUT"`
+	NoSort          bool   `config:"PANUSOMXML2EDL_NO_SORT"`
+	LogSilence      bool   `config:"PANUSOMXML2EDL_LOG_SILENCE"`
+	LogUnparsable   bool   `config:"PANUSOMXML2EDL_LOG_UNPARSABLE"`
+	SkipVerify      bool   `config:"PANUSOMXML2EDL_SKIP_VERIFY"`
+	FileTest        bool   `config:"PANUSOMXML2EDL_FILE_TEST"`
+	TimeoutDuration int    `config:"PANUSOMXML2EDL_TIMEOUT_DURATION"`
 }
 
 var appSett *AppSettStruct
@@ -62,7 +64,6 @@ func checkAppSett() {
 	}
 
 	if appSett.FileTest {
-
 		LogWarn.Println("CONFIG MSG: FileTest object value set to ('" + strconv.FormatBool(appSett.FileTest) + "'), no live data will be fetched.")
 	}
 
@@ -88,6 +89,18 @@ func checkAppSett() {
 
 	if appSett.NoSort {
 		LogWarn.Println("CONFIG MSG: NoSort object value set to ('" + strconv.FormatBool(appSett.NoSort) + "'), no sorting will be done and the order will be preserved.")
+	}
+
+	if appSett.TimeoutDuration < 0 || appSett.TimeoutDuration > 86400 {
+		LogErr.Fatalln("FATAL ERROR: TimeoutDuration object value ('" + strconv.Itoa(appSett.TimeoutDuration) + "') should be between 1 & 86.400!")
+	}
+
+	if appSett.TimeoutDuration == 0 {
+		appSett.TimeoutDuration = defaultTimeoutDuration
+	} else {
+		if !appSett.FileTest {
+			LogWarn.Println("CONFIG MSG: Using custom value ('" + strconv.Itoa(appSett.TimeoutDuration) + "') for TimeoutDuration object.")
+		}
 	}
 
 	if len(appSett.FeedURL) > 2000 {

@@ -66,7 +66,7 @@ func fetchXMLFeed() (xml []byte) {
 		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
-	timeout := time.Duration(60 * time.Second)
+	timeout := time.Second * time.Duration(appSett.TimeoutDuration)
 	client := &http.Client{Transport: transport, Timeout: timeout}
 
 	url := appSett.FeedURL
